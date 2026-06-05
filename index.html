@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>광교이편한세상 관리시스템</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:sans-serif;background:#f0f2f5;color:#222;}
+input,select,textarea,button{font-family:sans-serif;}
+
+/* 로그인 */
+.login-wrap{min-height:100vh;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);display:flex;align-items:center;justify-content:center;}
+.login-box{background:rgba(255,255,255,0.06);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.12);border-radius:24px;padding:52px 44px;width:400px;box-shadow:0 30px 70px rgba(0,0,0,.5);}
+.login-logo{text-align:center;margin-bottom:36px;}
+.login-logo .icon{width:68px;height:68px;background:linear-gradient(135deg,#c0392b,#e74c3c);border-radius:20px;display:inline-flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:12px;box-shadow:0 8px 24px rgba(192,57,43,.4);}
+.login-logo h1{color:#fff;font-size:20px;font-weight:900;}
+.login-logo p{color:rgba(255,255,255,.45);font-size:13px;margin-top:4px;}
+.login-inp{width:100%;padding:14px 15px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:13px;color:#fff;font-size:14px;outline:none;margin-bottom:12px;}
+.login-inp::placeholder{color:rgba(255,255,255,.35);}
+.login-btn{width:100%;padding:15px;background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff;border:none;border-radius:13px;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 6px 24px rgba(192,57,43,.45);}
+.login-err{background:rgba(231,76,60,.18);border:1px solid rgba(231,76,60,.5);color:#ff8a80;padding:10px 14px;border-radius:10px;font-size:13px;margin-bottom:14px;text-align:center;}
+.login-hint{margin-top:24px;padding:14px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;font-size:12px;color:rgba(255,255,255,.35);line-height:1.9;}
+
+/* 레이아웃 */
+.header{background:linear-gradient(135deg,#1a1a2e,#16213e);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:62px;box-shadow:0 2px 20px rgba(0,0,0,.35);position:sticky;top:0;z-index:100;}
+.header-logo{display:flex;align-items:center;gap:12px;}
+.header-logo .ico{width:34px;height:34px;background:linear-gradient(135deg,#c0392b,#e74c3c);border-radius:9px;display:inline-flex;align-items:center;justify-content:center;font-size:17px;}
+.header-logo span{color:#fff;font-weight:900;font-size:16px;}
+.header-logo small{color:rgba(255,255,255,.4);font-size:12px;margin-left:6px;}
+.header-right{display:flex;align-items:center;gap:12px;}
+.user-badge{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:6px 14px;font-size:13px;color:rgba(255,255,255,.75);}
+.admin-tag{background:#c0392b;color:#fff;font-size:10px;padding:1px 7px;border-radius:8px;margin-left:8px;font-weight:700;}
+.logout-btn{background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.15);border-radius:9px;padding:6px 14px;font-size:12px;cursor:pointer;}
+
+.tabs{background:#fff;border-bottom:2px solid #eee;padding:0 28px;display:flex;}
+.tab-btn{padding:15px 22px;border:none;background:none;cursor:pointer;font-size:14px;font-weight:700;color:#777;border-bottom:3px solid transparent;transition:all .2s;}
+.tab-btn.active{color:#c0392b;border-bottom:3px solid #c0392b;}
+
+.content{padding:24px 28px;max-width:1440px;margin:0 auto;}
+
+/* 카드 */
+.card{background:#fff;border-radius:16px;box-shadow:0 2px 14px rgba(0,0,0,.07);overflow:hidden;}
+.card-header{padding:13px 20px;}
+.card-header h3{color:#fff;font-size:15px;font-weight:800;margin:0;}
+.card-body{padding:16px 20px;}
+
+/* 그리드 */
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px;}
+.grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.grid-full{grid-column:1/-1;}
+
+.stat-card{background:#fff;border-radius:16px;box-shadow:0 2px 14px rgba(0,0,0,.07);padding:20px 22px;border-left:4px solid #ccc;cursor:pointer;}
+.stat-card .label{font-size:12px;color:#aaa;font-weight:600;margin-bottom:6px;}
+.stat-card .value{font-size:20px;font-weight:900;color:#1a1a2e;}
+
+/* 필터 바 */
+.filter-bar{background:#fff;border-radius:16px;box-shadow:0 2px 14px rgba(0,0,0,.07);padding:14px 18px;margin-bottom:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.inp{padding:10px 13px;border:1px solid #e0e0e0;border-radius:10px;font-size:13px;outline:none;background:#fafafa;color:#333;}
+.inp:focus{border-color:#c0392b;}
+.inp-full{width:100%;}
+.sel{padding:10px 13px;border:1px solid #e0e0e0;border-radius:10px;font-size:13px;outline:none;background:#fafafa;color:#333;cursor:pointer;}
+.btn-primary{padding:10px 18px;background:linear-gradient(135deg,#c0392b,#a93226);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.btn-secondary{padding:10px 18px;background:#f0f0f0;color:#555;border:1px solid #ddd;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;}
+.btn-danger{background:none;border:1px solid #fcc;border-radius:6px;color:#e74c3c;font-size:11px;padding:3px 8px;cursor:pointer;}
+.btn-small{padding:5px 10px;font-size:11px;background:none;border:1px solid #ddd;border-radius:6px;cursor:pointer;color:#555;}
+
+/* 테이블 */
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{padding:12px 14px;text-align:left;color:#555;font-weight:700;font-size:12px;border-bottom:2px solid #e8ecf0;background:#f8f9fa;white-space:nowrap;}
+td{padding:11px 14px;border-bottom:1px solid #f0f0f0;vertical-align:middle;font-size:13px;}
+tr:hover td{background:#fff8f8;}
+.tc{text-align:center;}
+
+/* 배지 */
+.badge{padding:2px 9px;border-radius:12px;font-size:11px;font-weight:700;color:#fff;white-space:nowrap;}
+
+/* 모달 */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px;}
+.modal{background:#fff;border-radius:20px;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;padding:32px;box-shadow:0 24px 64px rgba(0,0,0,.35);}
+.modal-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;}
+.modal-hd h2{font-size:18px;font-weight:900;color:#1a1a2e;}
+.modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:#aaa;line-height:1;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-full{grid-column:1/-1;}
+label.lbl{display:block;font-size:12px;color:#888;font-weight:700;margin-bottom:5px;}
+.fee-box{background:#f8f9fa;border-radius:14px;padding:18px;border:1px solid #eee;margin-top:18px;}
+.fee-box .fee-title{font-weight:700;font-size:14px;color:#333;margin-bottom:14px;}
+.fee-total{display:flex;justify-content:space-between;background:#fff;border-radius:10px;padding:12px 16px;border:1px solid #e0e0e0;margin-top:12px;font-size:13px;}
+.modal-foot{display:flex;gap:10px;margin-top:22px;justify-content:flex-end;}
+
+/* 급여 row */
+.sal-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f3f3f3;}
+.sal-row.bold .label{font-weight:800;color:#1a1a2e;}
+.sal-row.highlight{background:#fffbf0;}
+.sal-row .label{font-size:13px;color:#555;}
+.sal-row .val{font-size:13px;font-weight:600;color:#333;}
+.sal-row.bold .val{font-size:17px;font-weight:800;color:#e74c3c;}
+
+/* 알림 */
+.alert-yellow{background:#fff8e1;border:1px solid #ffe082;border-radius:10px;padding:9px 16px;margin-bottom:12px;font-size:13px;color:#795548;font-weight:600;}
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+// ══════════════════════════════════════════════
+//  데이터
+// ══════════════════════════════════════════════
+const ACCOUNTS = [
+  {id:"admin",  pw:"07242", name:"이유진 소장", role:"admin"},
+  {id:"kangil", pw:"1234",  name:"강일임 실장", role:"staff"},
+  {id:"kangjae",pw:"1234",  name:"강재미 실장", role:"staff"},
+  {id:"songhye",pw:"1234",  name:"송혜승 직원", role:"staff"},
+  {id:"kimmin", pw:"1234",  name:"김민학 직원", role:"staff"},
+  {id:"songyg", pw:"1234",  name:"송예경 직원", role:"staff"},
+  {id:"kimem",  pw:"1234",  name:"김은미 직원", role:"staff"},
+];
+
+let CONTRACTS = [
+  {id:1, year:2026,assignee:"강일임",contract_date:"2026-02-12",mid_date:"",        final_date:"2026-04-30",type:"매매", amount:"20억",    property:"대림 6114-2404",   seller_fee:12000000,seller_vat:500000, buyer_fee:11940000,buyer_vat:160000,note:""},
+  {id:2, year:2026,assignee:"강재미",contract_date:"2026-02-24",mid_date:"2026-02-25",final_date:"2026-03-24",type:"매매", amount:"18.4억",  property:"대림 6112-3703",   seller_fee:12859392,seller_vat:535808,buyer_fee:12859392,buyer_vat:535808,note:""},
+  {id:3, year:2026,assignee:"강재미",contract_date:"2026-02-21",mid_date:"",        final_date:"2026-04-30",type:"매매", amount:"17.9억",  property:"대림 6118-1102",   seller_fee:11520000,seller_vat:480000,buyer_fee:8928000, buyer_vat:372000,note:"매매약정서"},
+  {id:4, year:2026,assignee:"강재미",contract_date:"2026-03-14",mid_date:"2026-04-15",final_date:"2026-05-29",type:"매매", amount:"14.85억", property:"상록자이 4202-1604",seller_fee:0,       seller_vat:0,      buyer_fee:6384000, buyer_vat:266000,note:"매수인 인테리어 지원금 250만원 빠짐"},
+  {id:5, year:2026,assignee:"강일임",contract_date:"2026-03-18",mid_date:"",        final_date:"2026-05-29",type:"매매", amount:"19.6억",  property:"대림 6111-3002",   seller_fee:8984000, seller_vat:400000, buyer_fee:14976000,buyer_vat:624000,note:"매도 수수료에서 입주 청소 지원금 616,000원 빠짐"},
+  {id:6, year:2026,assignee:"강일임",contract_date:"2026-03-20",mid_date:"",        final_date:"2026-05-04",type:"전세", amount:"10.5억",  property:"대림 6121-601",    seller_fee:4193280, seller_vat:174720, buyer_fee:0,       buyer_vat:0,     note:""},
+  {id:7, year:2026,assignee:"강일임",contract_date:"2026-03-31",mid_date:"",        final_date:"2026-04-27",type:"반전세",amount:"5억/240",  property:"대림 6114-2704",   seller_fee:2955264, seller_vat:123136, buyer_fee:0,       buyer_vat:0,     note:"11-3002 매도인 서비스"},
+  {id:8, year:2026,assignee:"강재미",contract_date:"2026-03-17",mid_date:"",        final_date:"2026-04-25",type:"전세", amount:"11억",    property:"써밋 103-1004",    seller_fee:1777600, seller_vat:32400,  buyer_fee:0,       buyer_vat:0,     note:"임대인 81만, 기존 임차인 100만"},
+  {id:9, year:2026,assignee:"강재미",contract_date:"2026-03-28",mid_date:"-",       final_date:"2026-09-21",type:"매매", amount:"19억",    property:"대림 6114-1701",   seller_fee:0,       seller_vat:0,      buyer_fee:0,       buyer_vat:0,     note:"계약"},
+  {id:10,year:2026,assignee:"강일임",contract_date:"2026-04-16",mid_date:"2026-09-16",final_date:"2026-11-15",type:"매매", amount:"20.6억",  property:"6109-3303",        seller_fee:0,       seller_vat:0,      buyer_fee:0,       buyer_vat:0,     note:"잔금일이 임차만기일"},
+  {id:11,year:2026,assignee:"강일임",contract_date:"2026-04-25",mid_date:"",        final_date:"2026-07-13",type:"전세", amount:"10.7억",  property:"6116-804",         seller_fee:0,       seller_vat:0,      buyer_fee:0,       buyer_vat:0,     note:""},
+  {id:12,year:2026,assignee:"강재미",contract_date:"2026-05-01",mid_date:"2026-09-01",final_date:"2026-11-03",type:"매매", amount:"19.5억",  property:"6106-501",         seller_fee:0,       seller_vat:0,      buyer_fee:0,       buyer_vat:0,     note:""},
+  {id:13,year:2026,assignee:"강일임",contract_date:"2026-05-28",mid_date:"2026-07-15",final_date:"2026-08-19",type:"매매", amount:"19.4억",  property:"6103-1004",        seller_fee:0,       seller_vat:0,      buyer_fee:0,       buyer_vat:0,     note:""},
+  {id:14,year:2026,assignee:"강일임",contract_date:"2026-06-02",mid_date:"",        final_date:"2026-08-19",type:"전세", amount:"12억",    property:"6101-1701",        seller_fee:0,       seller_vat:0,      buyer_fee:0,       buyer_vat:0,     note:""},
+  {id:15,year:2026,assignee:"강일임",contract_date:"2026-06-03",mid_date:"2026-10-01",final_date:"2026-11-20",type:"매매", amount:"20.35억", property:"6118-2703",        seller_fee:0,       seller_vat:0,      buyer_fee:0,       buyer_vat:0,     note:""},
+  {id:16,year:2026,assignee:"강재미",contract_date:"2026-05-20",mid_date:"2026-05-27",final_date:"2026-08-25",type:"전세", amount:"11.7억",  property:"대림 6116-1902",   seller_fee:0,       seller_vat:0,      buyer_fee:0,       buyer_vat:0,     note:""},
+  {id:17,year:2026,assignee:"강재미",contract_date:"2026-06-02",mid_date:"2026-06-17",final_date:"2026-08-19",type:"전세", amount:"8억",     property:"센뷰 6004-2502",   seller_fee:0,       seller_vat:0,      buyer_fee:0,       buyer_vat:0,     note:""},
+  {id:18,year:2025,assignee:"김민학",contract_date:"2025-03-04",mid_date:"",        final_date:"2025-03-06",type:"매매", amount:"16억",    property:"대림 6112-2102",   seller_fee:10000000,seller_vat:400000, buyer_fee:5000000, buyer_vat:200000,note:""},
+  {id:19,year:2025,assignee:"강일임",contract_date:"2025-07-29",mid_date:"",        final_date:"2025-08-27",type:"월세", amount:"2억/320",  property:"6101-1901",        seller_fee:1557504, seller_vat:64896,  buyer_fee:1557504, buyer_vat:64896, note:""},
+  {id:20,year:2025,assignee:"강재미",contract_date:"2025-08-23",mid_date:"-",       final_date:"2025-09-26",type:"전세", amount:"9.7억",   property:"6116-202",         seller_fee:1920000, seller_vat:80000,  buyer_fee:3300000, buyer_vat:0,     note:""},
+  {id:21,year:2025,assignee:"김민학",contract_date:"2025-06-03",mid_date:"",        final_date:"2025-09-10",type:"매매", amount:"17.95억",  property:"대림 6106-1302",   seller_fee:12544896,seller_vat:522704, buyer_fee:12544896,buyer_vat:522704,note:"매도인 부동산 무료로 얻어주기로 함"},
+  {id:22,year:2025,assignee:"송혜승",contract_date:"2025-04-25",mid_date:"",        final_date:"2025-05-26",type:"매매", amount:"16.85억",  property:"써밋 104-2704",    seller_fee:9600000, seller_vat:400000, buyer_fee:7680000, buyer_vat:320000,note:"현금영수증 발행"},
+  {id:23,year:2025,assignee:"김민학",contract_date:"2025-03-18",mid_date:"2025-05-20",final_date:"2025-10-28",type:"매매", amount:"16.4억",  property:"대림 6118-3502",   seller_fee:11461632,seller_vat:477568, buyer_fee:9600000, buyer_vat:400000,note:""},
+  {id:24,year:2025,assignee:"강재미",contract_date:"2025-08-29",mid_date:"-",       final_date:"2025-12-15",type:"임대", amount:"4억/240",  property:"써밋 104-2803",    seller_fee:2555904, seller_vat:106496, buyer_fee:2555904, buyer_vat:106496,note:""},
+  {id:25,year:2025,assignee:"강재미",contract_date:"2025-10-01",mid_date:"2025-11-28",final_date:"2026-01-30",type:"매매", amount:"19억",    property:"대림 6109-2501",   seller_fee:13278720,seller_vat:553280, buyer_fee:11520000,buyer_vat:480000,note:""},
+];
+
+let CUSTOMERS = [
+  {id:1,name:"김철수",phone:"010-1234-5678",type:"매수",budget:"15억 이하",desired:"대림 25평 이상, 고층",memo:"방 3개 필요. 학군 중요.",status:"매물검색",assignee:"강일임 실장",reg_date:"2026-05-10"},
+  {id:2,name:"이영희",phone:"010-9876-5432",type:"임차",budget:"전세 9억",  desired:"대림 6단지, 20~25평",memo:"6월 입주 희망. 반려동물 없음.",status:"상담중",assignee:"강재미 실장",reg_date:"2026-05-28"},
+  {id:3,name:"박민준",phone:"010-5555-7777",type:"매도",budget:"19억 목표", desired:"6107동 중층",          memo:"급매 아님. 여름까지 매도 희망.",status:"계약대기",assignee:"강일임 실장",reg_date:"2026-04-15"},
+];
+
+let SALARY = {
+  month:"2026-05",
+  revenue_regular:45097280, revenue_other:925000,
+  expense_office:8021214,   expense_ad:900000,
+  expense_delivery:409000,  expense_misc:1033500,
+  staff:[
+    {name:"강일임 실장",    base:1500000, incentive:4370785},
+    {name:"강재미 실장",    base:1500000, incentive:3500000},
+    {name:"송예경 직원",    base:1200000, incentive:300000},
+    {name:"김은미 직원",    base:1320000, incentive:380000},
+    {name:"김민아(마케팅)", base:1000000, incentive:0},
+  ]
+};
+
+// ══════════════════════════════════════════════
+//  유틸
+// ══════════════════════════════════════════════
+function fmt(d){if(!d||d==="-")return d||"";return String(d).replace(/(\d{4})-(\d{2})-(\d{2})/,"$1.$2.$3");}
+function money(n){if(n===""||n==null||n===undefined)return"-";const v=Number(n);if(isNaN(v))return String(n);return v.toLocaleString();}
+function totalFee(c){return(c.seller_fee||0)+(c.seller_vat||0)+(c.buyer_fee||0)+(c.buyer_vat||0);}
+function isDone(d){if(!d||d==="-")return false;return new Date(d)<=new Date();}
+const TYPE_COLOR={매매:"#e74c3c",전세:"#2980b9",월세:"#27ae60",임대:"#8e44ad",반전세:"#d35400"};
+function typeColor(t){return Object.entries(TYPE_COLOR).find(([k])=>t?.startsWith(k))?.[1]||"#7f8c8d";}
+const STATUS_COLOR={"상담중":"#3498db","매물검색":"#8e44ad","계약대기":"#e67e22","계약완료":"#27ae60","보류":"#95a5a6"};
+const CTYPE_COLOR={"매수":"#e74c3c","매도":"#2980b9","임차":"#27ae60","임대":"#8e44ad","투자":"#d35400"};
+
+// ══════════════════════════════════════════════
+//  상태
+// ══════════════════════════════════════════════
+let state = {
+  user: null,
+  tab: "contracts",
+  // 계약
+  cSearch:"", cYear:"all", cStaff:"all", cType:"all",
+  cModal:false, cEdit:null,
+  // 고객
+  cuSearch:"", cuStatus:"all", cuType:"all",
+  cuModal:false, cuEdit:null,
+  // 급여
+  salMonth: SALARY.month,
+};
+
+// ══════════════════════════════════════════════
+//  렌더링
+// ══════════════════════════════════════════════
+function render(){
+  const app = document.getElementById("app");
+  if(!state.user){ app.innerHTML = renderLogin(); bindLogin(); return; }
+  app.innerHTML = renderMain();
+  bindMain();
+}
+
+// ── 로그인 ────────────────────────────────────
+function renderLogin(){
+  return `
+  <div class="login-wrap">
+    <div class="login-box">
+      <div class="login-logo">
+        <div class="icon">🏠</div>
+        <h1>광교이편한세상</h1>
+        <p>부동산 통합 관리 시스템</p>
+      </div>
+      <div id="login-err" style="display:none" class="login-err"></div>
+      <input class="login-inp" id="lid" placeholder="아이디" autocomplete="username"/>
+      <input class="login-inp" id="lpw" placeholder="비밀번호" type="password" autocomplete="current-password"/>
+      <button class="login-btn" id="lbtn">로그인</button>
+      <div class="login-hint">
+        <div style="font-weight:700;color:rgba(255,255,255,.55);margin-bottom:4px">테스트 계정</div>
+        소장 : admin / 07242<br/>
+        직원 : kangil · kangjae · songhye · kimmin / 1234
+      </div>
+    </div>
+  </div>`;
+}
+function bindLogin(){
+  const doLogin = ()=>{
+    const id=document.getElementById("lid").value;
+    const pw=document.getElementById("lpw").value;
+    const acc=ACCOUNTS.find(a=>a.id===id&&a.pw===pw);
+    if(acc){state.user=acc;render();}
+    else{const e=document.getElementById("login-err");e.style.display="block";e.textContent="아이디 또는 비밀번호가 틀렸습니다.";}
+  };
+  document.getElementById("lbtn").onclick=doLogin;
+  document.getElementById("lpw").onkeydown=e=>{if(e.key==="Enter")doLogin();};
+  document.getElementById("lid").onkeydown=e=>{if(e.key==="Enter")document.getElementById("lpw").focus();};
+}
+
+// ── 메인 ─────────────────────────────────────
+function renderMain(){
+  const u=state.user;
+  const tabs=[
+    {key:"contracts",label:"📋 계약관리"},
+    {key:"customers",label:"👥 고객관리"},
+    {key:"salary",   label:"💰 급여정산"},
+  ];
+  return `
+  <div class="header">
+    <div class="header-logo">
+      <div class="ico">🏠</div>
+      <span>광교이편한세상</span>
+      <small>| 부동산 통합관리</small>
+    </div>
+    <div class="header-right">
+      <div class="user-badge">👤 ${u.name}${u.role==="admin"?'<span class="admin-tag">관리자</span>':""}</div>
+      <button class="logout-btn" id="logout-btn">로그아웃</button>
+    </div>
+  </div>
+  <div class="tabs">
+    ${tabs.map(t=>`<button class="tab-btn${state.tab===t.key?" active":""}" data-tab="${t.key}">${t.label}</button>`).join("")}
+  </div>
+  <div class="content">
+    ${state.tab==="contracts"?renderContracts():""}
+    ${state.tab==="customers"?renderCustomers():""}
+    ${state.tab==="salary"?renderSalary():""}
+  </div>
+  ${state.cModal?renderContractModal():""}
+  ${state.cuModal?renderCustomerModal():""}
+  `;
+}
+
+// ══════════════════════════════════════════════
+//  계약관리
+// ══════════════════════════════════════════════
+function renderContracts(){
+  const u=state.user;
+  let list=CONTRACTS.filter(c=>{
+    if(state.cYear!=="all"&&c.year!==Number(state.cYear))return false;
+    if(state.cStaff!=="all"&&c.assignee!==state.cStaff)return false;
+    if(state.cType!=="all"&&!c.type?.startsWith(state.cType))return false;
+    if(state.cSearch){const q=state.cSearch.toLowerCase();return c.property?.toLowerCase().includes(q)||c.assignee?.toLowerCase().includes(q)||c.amount?.toLowerCase().includes(q)||c.type?.toLowerCase().includes(q)||c.note?.toLowerCase().includes(q);}
+    return true;
+  });
+  const years=[...new Set(CONTRACTS.map(c=>c.year))].sort((a,b)=>b-a);
+  const staffs=[...new Set(CONTRACTS.map(c=>c.assignee))].sort();
+  const done=list.filter(c=>isDone(c.final_date)).length;
+  const fees=list.reduce((s,c)=>s+totalFee(c),0);
+  const hasFilter=state.cSearch||state.cYear!=="all"||state.cStaff!=="all"||state.cType!=="all";
+
+  return `
+  <div class="grid-4">
+    ${[
+      {label:"전체 계약",val:CONTRACTS.length+"건",color:"#3498db",icon:"📋"},
+      {label:"진행중",   val:(list.length-done)+"건",color:"#e67e22",icon:"⏳"},
+      {label:"완결",     val:done+"건",              color:"#27ae60",icon:"✅"},
+      {label:"수수료 합계",val:"₩"+money(fees),      color:"#e74c3c",icon:"💰"},
+    ].map(c=>`<div class="stat-card" style="border-left-color:${c.color}">
+      <div class="label">${c.icon} ${c.label}</div>
+      <div class="value">${c.val}</div>
+    </div>`).join("")}
+  </div>
+  <div class="filter-bar">
+    <input class="inp" style="flex:1;min-width:180px" placeholder="🔍 물건, 담당자, 금액 검색..." id="c-search" value="${state.cSearch}"/>
+    <select class="sel" id="c-year">
+      <option value="all">전체 연도</option>
+      ${years.map(y=>`<option value="${y}"${state.cYear==y?" selected":""}>${y}년</option>`).join("")}
+    </select>
+    <select class="sel" id="c-staff">
+      <option value="all">전체 담당자</option>
+      ${staffs.map(s=>`<option value="${s}"${state.cStaff===s?" selected":""}>${s}</option>`).join("")}
+    </select>
+    <select class="sel" id="c-type">
+      <option value="all">전체 유형</option>
+      ${["매매","전세","월세","반전세","임대"].map(t=>`<option value="${t}"${state.cType===t?" selected":""}>${t}</option>`).join("")}
+    </select>
+    ${u.role==="admin"?`<button class="btn-primary" id="c-add-btn">＋ 계약 등록</button>`:""}
+  </div>
+  ${hasFilter?`<div class="alert-yellow">검색 결과 ${list.length}건 · 수수료 합계: ₩${money(fees)}</div>`:""}
+  <div class="card">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>담당</th><th>연도</th><th>계약일</th><th>잔금일</th><th>유형</th>
+          <th>계약물건</th><th>금액</th><th>매도수수료</th><th>매수수수료</th>
+          <th>합계</th><th>상태</th>${u.role==="admin"?"<th></th>":""}
+        </tr></thead>
+        <tbody>
+          ${list.length===0?`<tr><td colspan="12" style="padding:48px;text-align:center;color:#bbb">해당 조건의 계약이 없습니다.</td></tr>`:""}
+          ${list.map(c=>`
+          <tr style="cursor:pointer" data-cid="${c.id}" class="c-row">
+            <td><strong>${c.assignee}</strong></td>
+            <td>${c.year}</td>
+            <td>${fmt(c.contract_date)}</td>
+            <td>${fmt(c.final_date)}</td>
+            <td><span class="badge" style="background:${typeColor(c.type)}">${Object.keys(TYPE_COLOR).find(k=>c.type?.startsWith(k))||c.type}</span></td>
+            <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${c.property}">${c.property}</td>
+            <td style="font-weight:700;color:#2980b9">${c.amount}</td>
+            <td>${c.seller_fee?`<span style="color:#e74c3c;font-weight:600">₩${money(c.seller_fee)}</span><br><small style="color:#bbb">+${money(c.seller_vat)}</small>`:`<span style="color:#ddd">-</span>`}</td>
+            <td>${c.buyer_fee?`<span style="color:#27ae60;font-weight:600">₩${money(c.buyer_fee)}</span><br><small style="color:#bbb">+${money(c.buyer_vat)}</small>`:`<span style="color:#ddd">-</span>`}</td>
+            <td style="font-weight:800">${totalFee(c)>0?"₩"+money(totalFee(c)):"-"}</td>
+            <td><span class="badge" style="background:${isDone(c.final_date)?"#27ae60":"#e67e22"}">${isDone(c.final_date)?"완결":"진행중"}</span></td>
+            ${u.role==="admin"?`<td><button class="btn-danger c-del-btn" data-cid="${c.id}">삭제</button></td>`:""}
+          </tr>`).join("")}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function renderContractModal(){
+  const c=state.cEdit||{year:new Date().getFullYear(),assignee:"",contract_date:"",mid_date:"",final_date:"",type:"매매",amount:"",property:"",seller_fee:"",seller_vat:"",buyer_fee:"",buyer_vat:"",note:""};
+  const ro=state.user.role!=="admin";
+  const sf=(Number(c.seller_fee)||0)+(Number(c.seller_vat)||0);
+  const bf=(Number(c.buyer_fee)||0)+(Number(c.buyer_vat)||0);
+  return `
+  <div class="modal-bg" id="c-modal-bg">
+    <div class="modal">
+      <div class="modal-hd">
+        <h2>${ro?"📋 계약 상세보기":state.cEdit?"✏️ 계약 수정":"➕ 계약 등록"}</h2>
+        <button class="modal-close" id="c-modal-close">✕</button>
+      </div>
+      <div class="form-grid">
+        <div><label class="lbl">연도</label><input class="inp inp-full" id="cf-year" type="number" value="${c.year||""}" ${ro?"disabled":""}></div>
+        <div><label class="lbl">담당자</label><input class="inp inp-full" id="cf-assignee" value="${c.assignee||""}" ${ro?"disabled":""}></div>
+        <div><label class="lbl">계약일</label><input class="inp inp-full" id="cf-contract_date" type="date" value="${c.contract_date||""}" ${ro?"disabled":""}></div>
+        <div><label class="lbl">중도금일</label><input class="inp inp-full" id="cf-mid_date" type="date" value="${c.mid_date||""}" ${ro?"disabled":""}></div>
+        <div><label class="lbl">잔금일</label><input class="inp inp-full" id="cf-final_date" type="date" value="${c.final_date||""}" ${ro?"disabled":""}></div>
+        <div><label class="lbl">계약금액</label><input class="inp inp-full" id="cf-amount" value="${c.amount||""}" placeholder="예) 18억, 2억/300" ${ro?"disabled":""}></div>
+        <div><label class="lbl">유형</label>
+          <select class="inp inp-full" id="cf-type" ${ro?"disabled":""}>
+            ${["매매","전세","월세","반전세","임대"].map(t=>`<option${c.type===t?" selected":""}>${t}</option>`).join("")}
+          </select>
+        </div>
+        <div><label class="lbl">계약물건</label><input class="inp inp-full" id="cf-property" value="${c.property||""}" placeholder="예) 대림 6114-2404" ${ro?"disabled":""}></div>
+      </div>
+      <div class="fee-box">
+        <div class="fee-title">💰 수수료</div>
+        <div class="form-grid">
+          <div><label class="lbl">매도(임대) 수수료</label><input class="inp inp-full" id="cf-seller_fee" type="number" value="${c.seller_fee||""}" style="text-align:right" ${ro?"disabled":""}></div>
+          <div><label class="lbl">매도 부가세</label><input class="inp inp-full" id="cf-seller_vat" type="number" value="${c.seller_vat||""}" style="text-align:right" ${ro?"disabled":""}></div>
+          <div><label class="lbl">매수(임차) 수수료</label><input class="inp inp-full" id="cf-buyer_fee" type="number" value="${c.buyer_fee||""}" style="text-align:right" ${ro?"disabled":""}></div>
+          <div><label class="lbl">매수 부가세</label><input class="inp inp-full" id="cf-buyer_vat" type="number" value="${c.buyer_vat||""}" style="text-align:right" ${ro?"disabled":""}></div>
+        </div>
+        <div class="fee-total">
+          <span>매도 합계: <strong style="color:#e74c3c">₩${money(sf)}</strong> &nbsp; 매수 합계: <strong style="color:#27ae60">₩${money(bf)}</strong></span>
+          <strong>총: ₩${money(sf+bf)}</strong>
+        </div>
+      </div>
+      <div style="margin-top:14px"><label class="lbl">비고</label>
+        <textarea class="inp inp-full" id="cf-note" rows="3" ${ro?"disabled":""}>${c.note||""}</textarea>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-secondary" id="c-modal-close2">닫기</button>
+        ${!ro?`<button class="btn-primary" id="c-modal-save">💾 저장</button>`:""}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+//  고객관리
+// ══════════════════════════════════════════════
+function renderCustomers(){
+  let list=CUSTOMERS.filter(c=>{
+    if(state.cuStatus!=="all"&&c.status!==state.cuStatus)return false;
+    if(state.cuType!=="all"&&c.type!==state.cuType)return false;
+    if(state.cuSearch){const q=state.cuSearch.toLowerCase();return c.name?.toLowerCase().includes(q)||c.phone?.includes(q)||c.desired?.toLowerCase().includes(q)||c.memo?.toLowerCase().includes(q)||c.assignee?.toLowerCase().includes(q);}
+    return true;
+  });
+  return `
+  <div class="grid-5">
+    ${["상담중","매물검색","계약대기","계약완료","보류"].map(s=>`
+    <div class="stat-card" style="border-left-color:${STATUS_COLOR[s]};${state.cuStatus===s?"outline:2px solid "+STATUS_COLOR[s]:""}" data-cus="${s}">
+      <div class="label">${s}</div>
+      <div class="value" style="color:${STATUS_COLOR[s]}">${CUSTOMERS.filter(c=>c.status===s).length}</div>
+    </div>`).join("")}
+  </div>
+  <div class="filter-bar">
+    <input class="inp" style="flex:1;min-width:180px" placeholder="🔍 이름, 연락처, 조건, 메모 검색..." id="cu-search" value="${state.cuSearch}"/>
+    <select class="sel" id="cu-type">
+      <option value="all">전체 구분</option>
+      ${["매수","매도","임차","임대","투자"].map(t=>`<option value="${t}"${state.cuType===t?" selected":""}>${t}</option>`).join("")}
+    </select>
+    <button class="btn-primary" id="cu-add-btn">＋ 고객 등록</button>
+  </div>
+  <div class="card">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>고객명</th><th>연락처</th><th>구분</th><th>상태</th>
+          <th>예산/금액</th><th>희망 조건</th><th>담당자</th><th>등록일</th><th>메모</th><th></th>
+        </tr></thead>
+        <tbody>
+          ${list.length===0?`<tr><td colspan="10" style="padding:48px;text-align:center;color:#bbb">등록된 고객이 없습니다.</td></tr>`:""}
+          ${list.map(c=>`
+          <tr style="cursor:pointer" data-cuid="${c.id}" class="cu-row">
+            <td><strong>${c.name}</strong></td>
+            <td style="color:#3498db;font-family:monospace">${c.phone}</td>
+            <td><span class="badge" style="background:${CTYPE_COLOR[c.type]||"#aaa"}">${c.type}</span></td>
+            <td><span class="badge" style="background:${STATUS_COLOR[c.status]||"#aaa"}">${c.status}</span></td>
+            <td style="color:#e74c3c;font-weight:600">${c.budget}</td>
+            <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${c.desired}">${c.desired}</td>
+            <td>${c.assignee}</td>
+            <td>${fmt(c.reg_date)}</td>
+            <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#888" title="${c.memo}">${c.memo}</td>
+            <td><button class="btn-danger cu-del-btn" data-cuid="${c.id}">삭제</button></td>
+          </tr>`).join("")}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function renderCustomerModal(){
+  const c=state.cuEdit||{name:"",phone:"",type:"매수",budget:"",desired:"",memo:"",status:"상담중",assignee:"",reg_date:new Date().toISOString().slice(0,10)};
+  return `
+  <div class="modal-bg" id="cu-modal-bg">
+    <div class="modal">
+      <div class="modal-hd">
+        <h2>${state.cuEdit?"✏️ 고객 수정":"➕ 고객 등록"}</h2>
+        <button class="modal-close" id="cu-modal-close">✕</button>
+      </div>
+      <div class="form-grid">
+        <div><label class="lbl">고객명</label><input class="inp inp-full" id="cuf-name" value="${c.name||""}" placeholder="이름"></div>
+        <div><label class="lbl">연락처</label><input class="inp inp-full" id="cuf-phone" value="${c.phone||""}" placeholder="010-0000-0000"></div>
+        <div><label class="lbl">구분</label>
+          <select class="inp inp-full" id="cuf-type">
+            ${["매수","매도","임차","임대","투자"].map(t=>`<option${c.type===t?" selected":""}>${t}</option>`).join("")}
+          </select>
+        </div>
+        <div><label class="lbl">상태</label>
+          <select class="inp inp-full" id="cuf-status">
+            ${["상담중","매물검색","계약대기","계약완료","보류"].map(s=>`<option${c.status===s?" selected":""}>${s}</option>`).join("")}
+          </select>
+        </div>
+        <div><label class="lbl">예산/희망금액</label><input class="inp inp-full" id="cuf-budget" value="${c.budget||""}" placeholder="예) 15억 이하"></div>
+        <div><label class="lbl">담당자</label><input class="inp inp-full" id="cuf-assignee" value="${c.assignee||""}" placeholder="담당 실장님"></div>
+        <div><label class="lbl">등록일</label><input class="inp inp-full" id="cuf-reg_date" type="date" value="${c.reg_date||""}"></div>
+        <div><label class="lbl">희망 매물 조건</label><input class="inp inp-full" id="cuf-desired" value="${c.desired||""}" placeholder="예) 대림 25평, 5층 이상"></div>
+        <div class="form-full"><label class="lbl">메모 / 상담내역</label>
+          <textarea class="inp inp-full" id="cuf-memo" rows="4" placeholder="상담 내용, 특이사항 등 자유롭게 기록하세요.">${c.memo||""}</textarea>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-secondary" id="cu-modal-close2">닫기</button>
+        <button class="btn-primary" id="cu-modal-save">💾 저장</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+//  급여정산
+// ══════════════════════════════════════════════
+function renderSalary(){
+  const u=state.user;
+  const isAdmin=u.role==="admin";
+  const d=SALARY;
+  const rev=d.revenue_regular+d.revenue_other;
+  const exp=d.expense_office+d.expense_ad+d.expense_delivery+d.expense_misc;
+  const totalBase=d.staff.reduce((s,x)=>s+x.base,0);
+  const totalInc=d.staff.reduce((s,x)=>s+x.incentive,0);
+  const totalSal=totalBase+totalInc;
+  const profit=rev-exp-totalSal;
+  const myRow=d.staff.find(s=>u.name.includes(s.name.split(" ")[0]));
+
+  const salRow=(label,value,editable,id,bold,highlight)=>`
+    <div class="sal-row${bold?" bold":""}${highlight?" highlight":""}">
+      <span class="label">${label}</span>
+      ${editable&&!bold
+        ?`<input class="inp" style="width:150px;text-align:right;padding:6px 10px;font-size:13px" id="${id}" type="number" value="${value}">`
+        :`<span class="val">₩${money(value)}</span>`}
+    </div>`;
+
+  return `
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:22px;flex-wrap:wrap">
+    <h2 style="margin:0;font-size:18px;font-weight:900;color:#1a1a2e">💰 급여 정산표</h2>
+    <input class="inp" type="month" id="sal-month" value="${d.month}" style="width:170px">
+    ${!isAdmin&&myRow?`<div style="background:#e8f8f0;border:1px solid #27ae60;border-radius:10px;padding:9px 18px;font-size:13px;color:#1e8449;font-weight:700">내 실수령액: ₩${money(myRow.base+myRow.incentive)}</div>`:""}
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header" style="background:linear-gradient(135deg,#2980b9,#2471a3)"><h3>📈 사무실 수입</h3></div>
+      <div class="card-body">
+        ${salRow("일반 수수료",d.revenue_regular,isAdmin,"sal-rev-regular")}
+        ${salRow("기타 수수료",d.revenue_other,isAdmin,"sal-rev-other")}
+        ${salRow("합 계",rev,false,"",true,true)}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header" style="background:linear-gradient(135deg,#c0392b,#a93226)"><h3>📉 사무실 지출</h3></div>
+      <div class="card-body">
+        ${salRow("사무실 지출",d.expense_office,isAdmin,"sal-exp-office")}
+        ${salRow("광고비",d.expense_ad,isAdmin,"sal-exp-ad")}
+        ${salRow("배달·식비쿠폰",d.expense_delivery,isAdmin,"sal-exp-delivery")}
+        ${salRow("기타",d.expense_misc,isAdmin,"sal-exp-misc")}
+        ${salRow("합 계",exp,false,"",true,true)}
+      </div>
+    </div>
+    <div class="card grid-full">
+      <div class="card-header" style="background:linear-gradient(135deg,#27ae60,#229954)"><h3>👥 직원 급여 현황</h3></div>
+      <div class="card-body">
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th class="tc">직원명</th><th class="tc">기본급</th><th class="tc">인센티브</th><th class="tc">실수령액</th>
+              ${isAdmin?"<th class='tc'></th>":""}
+            </tr></thead>
+            <tbody>
+              ${d.staff.map((s,i)=>{
+                const canInc=isAdmin||u.name.includes(s.name.split(" ")[0]);
+                return `<tr style="background:${i%2===0?"#fff":"#fafbfc"}">
+                  <td class="tc"><strong>${isAdmin?`<input class="inp" style="width:130px;text-align:center;font-weight:700" id="sn-${i}" value="${s.name}">`:s.name}</strong></td>
+                  <td class="tc">${isAdmin?`<input class="inp" style="width:120px;text-align:right" id="sb-${i}" type="number" value="${s.base}">`:`<span>₩${money(s.base)}</span>`}</td>
+                  <td class="tc">${canInc?`<input class="inp" style="width:130px;text-align:right" id="si-${i}" type="number" value="${s.incentive}">`:`<span style="color:#27ae60;font-weight:600">₩${money(s.incentive)}</span>`}</td>
+                  <td class="tc" style="font-weight:800;color:#c0392b;font-size:15px">₩${money(s.base+s.incentive)}</td>
+                  ${isAdmin?`<td class="tc"><button class="btn-danger sal-del-staff" data-si="${i}">삭제</button></td>`:""}
+                </tr>`;
+              }).join("")}
+              <tr style="background:#fffbf0;font-weight:800">
+                <td class="tc" style="color:#795548">합 계</td>
+                <td class="tc" style="color:#795548">₩${money(totalBase)}</td>
+                <td class="tc" style="color:#795548">₩${money(totalInc)}</td>
+                <td class="tc" style="color:#c0392b;font-size:16px">₩${money(totalSal)}</td>
+                ${isAdmin?"<td></td>":""}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        ${isAdmin?`<button class="btn-secondary" id="sal-add-staff" style="margin-top:12px;font-size:12px">＋ 직원 추가</button>`:""}
+      </div>
+    </div>
+    ${isAdmin?`
+    <div class="card grid-full">
+      <div class="card-header" style="background:linear-gradient(135deg,#8e44ad,#7d3c98)"><h3>🏆 최종 수익 정산</h3></div>
+      <div class="card-body">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:8px 0">
+          ${[
+            {label:"총 수입",    val:rev,      color:"#2980b9"},
+            {label:"총 지출",    val:exp,      color:"#e74c3c"},
+            {label:"총 직원급여",val:totalSal, color:"#e67e22"},
+            {label:"🏢 하이스트 수익",val:profit,color:"#27ae60"},
+          ].map(x=>`<div style="background:${x.color}10;border:2px solid ${x.color}30;border-radius:14px;padding:18px 16px;text-align:center">
+            <div style="font-size:12px;color:#888;font-weight:600;margin-bottom:8px">${x.label}</div>
+            <div style="font-size:18px;font-weight:900;color:${x.color}">₩${money(x.val)}</div>
+          </div>`).join("")}
+        </div>
+      </div>
+    </div>`:""}
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+//  이벤트 바인딩
+// ══════════════════════════════════════════════
+function bindMain(){
+  // 로그아웃
+  document.getElementById("logout-btn").onclick=()=>{state.user=null;render();};
+
+  // 탭
+  document.querySelectorAll(".tab-btn").forEach(b=>{
+    b.onclick=()=>{state.tab=b.dataset.tab;render();};
+  });
+
+  if(state.tab==="contracts") bindContracts();
+  if(state.tab==="customers") bindCustomers();
+  if(state.tab==="salary")    bindSalary();
+  if(state.cModal)  bindContractModal();
+  if(state.cuModal) bindCustomerModal();
+}
+
+function bindContracts(){
+  const el=id=>document.getElementById(id);
+  el("c-search")?.addEventListener("input",e=>{state.cSearch=e.target.value;render();});
+  el("c-year")?.addEventListener("change",e=>{state.cYear=e.target.value;render();});
+  el("c-staff")?.addEventListener("change",e=>{state.cStaff=e.target.value;render();});
+  el("c-type")?.addEventListener("change",e=>{state.cType=e.target.value;render();});
+  el("c-add-btn")?.addEventListener("click",()=>{state.cEdit=null;state.cModal=true;render();});
+  document.querySelectorAll(".c-row").forEach(row=>{
+    row.onclick=()=>{const c=CONTRACTS.find(x=>x.id===Number(row.dataset.cid));state.cEdit=c;state.cModal=true;render();};
+  });
+  document.querySelectorAll(".c-del-btn").forEach(btn=>{
+    btn.onclick=e=>{e.stopPropagation();if(confirm("이 계약을 삭제하시겠습니까?")){CONTRACTS=CONTRACTS.filter(c=>c.id!==Number(btn.dataset.cid));render();}};
+  });
+}
+
+function bindContractModal(){
+  const el=id=>document.getElementById(id);
+  const close=()=>{state.cModal=false;state.cEdit=null;render();};
+  el("c-modal-close")?.onclick=close;
+  el("c-modal-close2")?.onclick=close;
+  el("c-modal-bg")?.onclick=e=>{if(e.target.id==="c-modal-bg")close();};
+
+  // 수수료 실시간 합계
+  ["seller_fee","seller_vat","buyer_fee","buyer_vat"].forEach(k=>{
+    el("cf-"+k)?.addEventListener("input",()=>{
+      const sf=(Number(el("cf-seller_fee")?.value)||0)+(Number(el("cf-seller_vat")?.value)||0);
+      const bf=(Number(el("cf-buyer_fee")?.value)||0)+(Number(el("cf-buyer_vat")?.value)||0);
+      const ft=document.querySelector(".fee-total");
+      if(ft)ft.innerHTML=`<span>매도 합계: <strong style="color:#e74c3c">₩${money(sf)}</strong> &nbsp; 매수 합계: <strong style="color:#27ae60">₩${money(bf)}</strong></span><strong>총: ₩${money(sf+bf)}</strong>`;
+    });
+  });
+
+  el("c-modal-save")?.onclick=()=>{
+    const g=id=>{const e=document.getElementById(id);return e?e.value:"";};
+    const data={
+      id:state.cEdit?.id||Date.now(),
+      year:Number(g("cf-year")),assignee:g("cf-assignee"),
+      contract_date:g("cf-contract_date"),mid_date:g("cf-mid_date"),
+      final_date:g("cf-final_date"),type:g("cf-type"),
+      amount:g("cf-amount"),property:g("cf-property"),
+      seller_fee:Number(g("cf-seller_fee"))||0,seller_vat:Number(g("cf-seller_vat"))||0,
+      buyer_fee:Number(g("cf-buyer_fee"))||0, buyer_vat:Number(g("cf-buyer_vat"))||0,
+      note:g("cf-note"),
+    };
+    if(state.cEdit){CONTRACTS=CONTRACTS.map(c=>c.id===data.id?data:c);}
+    else{CONTRACTS.push(data);}
+    state.cModal=false;state.cEdit=null;render();
+  };
+}
+
+function bindCustomers(){
+  const el=id=>document.getElementById(id);
+  el("cu-search")?.addEventListener("input",e=>{state.cuSearch=e.target.value;render();});
+  el("cu-type")?.addEventListener("change",e=>{state.cuType=e.target.value;render();});
+  el("cu-add-btn")?.addEventListener("click",()=>{state.cuEdit=null;state.cuModal=true;render();});
+  document.querySelectorAll(".cu-row").forEach(row=>{
+    row.onclick=()=>{const c=CUSTOMERS.find(x=>x.id===Number(row.dataset.cuid));state.cuEdit=c;state.cuModal=true;render();};
+  });
+  document.querySelectorAll(".cu-del-btn").forEach(btn=>{
+    btn.onclick=e=>{e.stopPropagation();if(confirm("이 고객 정보를 삭제하시겠습니까?")){CUSTOMERS=CUSTOMERS.filter(c=>c.id!==Number(btn.dataset.cuid));render();}};
+  });
+  document.querySelectorAll("[data-cus]").forEach(el=>{
+    el.onclick=()=>{state.cuStatus=state.cuStatus===el.dataset.cus?"all":el.dataset.cus;render();};
+  });
+}
+
+function bindCustomerModal(){
+  const el=id=>document.getElementById(id);
+  const close=()=>{state.cuModal=false;state.cuEdit=null;render();};
+  el("cu-modal-close")?.onclick=close;
+  el("cu-modal-close2")?.onclick=close;
+  el("cu-modal-bg")?.onclick=e=>{if(e.target.id==="cu-modal-bg")close();};
+  el("cu-modal-save")?.onclick=()=>{
+    const g=id=>{const e=document.getElementById(id);return e?e.value:"";};
+    const data={
+      id:state.cuEdit?.id||Date.now(),
+      name:g("cuf-name"),phone:g("cuf-phone"),type:g("cuf-type"),
+      budget:g("cuf-budget"),desired:g("cuf-desired"),memo:g("cuf-memo"),
+      status:g("cuf-status"),assignee:g("cuf-assignee"),reg_date:g("cuf-reg_date"),
+    };
+    if(state.cuEdit){CUSTOMERS=CUSTOMERS.map(c=>c.id===data.id?data:c);}
+    else{CUSTOMERS.push(data);}
+    state.cuModal=false;state.cuEdit=null;render();
+  };
+}
+
+function bindSalary(){
+  const el=id=>document.getElementById(id);
+  const isAdmin=state.user.role==="admin";
+
+  el("sal-month")?.addEventListener("change",e=>{SALARY.month=e.target.value;});
+
+  if(isAdmin){
+    const salInputs=[
+      ["sal-rev-regular","revenue_regular"],["sal-rev-other","revenue_other"],
+      ["sal-exp-office","expense_office"],  ["sal-exp-ad","expense_ad"],
+      ["sal-exp-delivery","expense_delivery"],["sal-exp-misc","expense_misc"],
+    ];
+    salInputs.forEach(([id,key])=>{
+      el(id)?.addEventListener("change",e=>{SALARY[key]=Number(e.target.value)||0;render();});
+    });
+    el("sal-add-staff")?.onclick=()=>{SALARY.staff.push({name:"새 직원",base:0,incentive:0});render();};
+    document.querySelectorAll(".sal-del-staff").forEach(btn=>{
+      btn.onclick=()=>{if(confirm("삭제할까요?")){SALARY.staff.splice(Number(btn.dataset.si),1);render();}};
+    });
+    SALARY.staff.forEach((_,i)=>{
+      el("sn-"+i)?.addEventListener("change",e=>{SALARY.staff[i].name=e.target.value;render();});
+      el("sb-"+i)?.addEventListener("change",e=>{SALARY.staff[i].base=Number(e.target.value)||0;render();});
+      el("si-"+i)?.addEventListener("change",e=>{SALARY.staff[i].incentive=Number(e.target.value)||0;render();});
+    });
+  } else {
+    SALARY.staff.forEach((_,i)=>{
+      el("si-"+i)?.addEventListener("change",e=>{SALARY.staff[i].incentive=Number(e.target.value)||0;render();});
+    });
+  }
+}
+
+// 시작
+document.addEventListener("DOMContentLoaded", function(){ render(); });
+</script>
+</body>
+</html>
